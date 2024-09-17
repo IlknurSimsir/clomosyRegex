@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clomosy For Döngüsü Kontrolcüsü</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .valid {
+            color: green;
+        }
+
+        .invalid {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Clomosy For Döngüsü Kontrolcüsü</h1>
+    <textarea id="inputText" rows="10" placeholder="Metni buraya yazın..."></textarea>
+    <div id="result"></div>
+
+    <script>
+        const validateClomsyForLoop = (statement) => {
+            const regex = /\bfor\s*(\(?)(\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*)=(\s*)(-?\d+)(\s*)(to|downto)(\s*)(-?\d+)(\s*)(\)?)/;
+            const match = statement.match(regex);
+
+            if (!match) {
+                return { isValid: false, error: "Geçersiz for döngüsü sözdizimi" };
+            }
+
+            const [, openParen, , variableName, , , startValue, , direction, , endValue, , closeParen] = match;
+
+            if ((openParen && !closeParen) || (!openParen && closeParen)) {
+                return { isValid: false, error: "Dengesiz parantezler" };
+            }
+
+            const start = parseInt(startValue);
+            const end = parseInt(endValue);
+
+            if (direction === "to" && start > end) {
+                return { isValid: false, error: "'to' döngüleri için, başlangıç değeri bitiş değerinden küçük veya eşit olmalıdır" };
+            }
+
+            if (direction === "downto" && start < end) {
+                return { isValid: false, error: "'downto' döngüleri için, başlangıç değeri bitiş değerinden büyük veya eşit olmalıdır" };
+            }
+
+            return { isValid: true, details: { variableName, startValue: start, direction, endValue: end } };
+        };
+
+        document.getElementById('inputText').addEventListener('input', function () {
+            const metin = this.value;
+            const forPattern = /\bfor\s*(\(?)(\s*)([a-zA-Z_][a-zA-Z0-9_]*)(\s*)=(\s*)(-?\d+)(\s*)(to|downto)(\s*)(-?\d+)(\s*)(\)?)/g;
+            const matches = metin.matchAll(forPattern);
+
+            let resultHTML = '';
+            let count = 0;
+
+            for (const match of matches) {
+                count++;
+                const forStatement = match[0];
+                const validationResult = validateClomsyForLoop(forStatement);
+
+                resultHTML += `<p><strong>For Döngüsü #${count}:</strong> ${forStatement}<br>`;
+                if (validationResult.isValid) {
+                    resultHTML += `<span class="valid">Geçerli</span>: ${JSON.stringify(validationResult.details)}</p>`;
+                } else {
+                    resultHTML += `<span class="invalid">Geçersiz</span>: ${validationResult.error}</p>`;
+                }
+            }
+
+            if (count === 0) {
+                resultHTML = "<p>'for' döngüsü bulunamadı.</p>";
+            } else {
+                resultHTML = `<p>Toplam ${count} 'for' döngüsü bulundu:</p>` + resultHTML;
+            }
+
+            document.getElementById('result').innerHTML = resultHTML;
+        });
+    </script>
+</body>
+
+</html>
