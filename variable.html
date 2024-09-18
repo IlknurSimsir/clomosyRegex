@@ -36,7 +36,6 @@
     <h1>Clomosy Değişken Tekrar Kontrolcüsü</h1>
     <textarea id="inputText" rows="10" placeholder="Metni buraya yazın..."></textarea>
     <div id="result"></div>
-
     <script>
         const removeComments = (code) => {
             return code
@@ -46,16 +45,12 @@
         const validateClomsyVariables = (statement) => {
             const codeWithoutComments = removeComments(statement);
             const beforeBrace = codeWithoutComments.split('{')[0];
-            // Var ile başlayan ve noktalı virgülle biten tüm değişkenler
             const variableRegex = /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*[a-zA-Z_][a-zA-Z0-9_]*;/g;
             const variables = [];
             let matchResult;
-
             while ((matchResult = variableRegex.exec(beforeBrace)) !== null) {/*yanlızca scope içine bakıyor*/
                 variables.push(matchResult[1]);  /*değişken isimlerini alıyoruz*/
             }
-
-            // Aynı isimdeki değişkenleri bulmak için
             const duplicates = variables.filter((item, index) => variables.indexOf(item) !== index);
 
             if (duplicates.length > 0) {
@@ -64,10 +59,8 @@
 
             return { isValid: true, details: `Geçerli değişkenler: ${variables.join(', ')}` };
         };
-
         document.getElementById('inputText').addEventListener('input', function () {
             const metin = this.value;
-            // Değişkenleri kontrol et
             const validationResult = validateClomsyVariables(metin);
 
             let resultHTML = '';
@@ -76,7 +69,6 @@
             } else {
                 resultHTML += `<span class="invalid">Geçersiz:</span> ${validationResult.error}`;
             }
-
             document.getElementById('result').innerHTML = resultHTML;
         });
     </script>
