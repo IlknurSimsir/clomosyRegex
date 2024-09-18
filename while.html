@@ -38,10 +38,15 @@
     <div id="result"></div>
 
     <script>
+        const removeComments = (code) => {
+            return code
+                .replace(/\/\/.*$/gm, '') /* satır içi yorumlar*/
+                .replace(/\/\*[\s\S]*?\*\//g, ''); /*blok yorumlar*/
+        };
         const validateClomsyWhileLoop = (statement) => {
+            const codeWithoutComments = removeComments(statement);
             const regex = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=|=)\s*(-?\d+)\s*\)\s*{/i;
-
-            const match = statement.match(regex);
+            const match = codeWithoutComments.match(regex);
 
             if (!match) {
                 return { isValid: false, error: "Geçersiz while döngüsü sözdizimi" };
