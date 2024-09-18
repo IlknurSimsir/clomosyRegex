@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clomosy While Döngüsü Kontrolcüsü</title>
+    <title>Clomosy If-Else Döngüsü Kontrolcüsü</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,13 +33,13 @@
 </head>
 
 <body>
-    <h1>Clomosy While Döngüsü Kontrolcüsü</h1>
+    <h1>Clomosy If-Else Döngüsü Kontrolcüsü</h1>
     <textarea id="inputText" rows="10" placeholder="Metni buraya yazın..."></textarea>
     <div id="result"></div>
 
     <script>
         const validateClomsyWhileLoop = (statement) => {
-            const regex = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=|=)\s*(-?\d+)\s*\)\s*{/i;
+            const regex = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=)\s*(-?\d+)\s*\)\s*{/i;
 
             const match = statement.match(regex);
 
@@ -72,7 +72,7 @@
         };
         document.getElementById('inputText').addEventListener('input', function () {
             const metin = this.value;
-            const whilePattern = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=|=)\s*(-?\d+)\s*\)\s*{/gi;
+            const whilePattern = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=)\s*(-?\d+)\s*\)\s*{/gi;
             const matches = metin.matchAll(whilePattern);
 
             let resultHTML = '';

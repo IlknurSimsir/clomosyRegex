@@ -66,9 +66,9 @@
             return { isValid: true, details: { variableName, startValue: start, direction, endValue: end } };
         };
         const validateCurlyBraces = (statement) => {
-            const openBraces = (statement.match(/{/g) || []).length;
-            const closeBraces = (statement.match(/}/g) || []).length;
-
+            const codeWithoutComments = statement.replace(/\{[\s\S]*?\}/g, '');
+            const openBraces = (codeWithoutComments.match(/{/g) || []).length;
+            const closeBraces = (codeWithoutComments.match(/}/g) || []).length;
             if (openBraces !== closeBraces) {
                 return { isValid: false, error: "Açılan ve kapanan süslü parantez sayısı eşit değil" };
             }
