@@ -38,23 +38,47 @@
     <div id="result"></div>
 
     <script>
-        const validateClomsyWhileLoop = (statement) => {
-            const regex = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=)\s*(-?\d+)\s*\)\s*{/i;
-
-            const match = statement.match(regex);
+        const validateClomsyIfLoop = (statement) => {
+            const regex = /\bif\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)?)\s*((==|!=|<|>|<>|<=|>=)\s*(-?\d+))?((==|<>)\s*(True|False))?\s*\)\s*/i;
+            const codeWithoutComments = statement.replace(/\{[\s\S]*?\}/g, '');
+            const match = codeWithoutComments.match(regex);
 
             if (!match) {
-                return { isValid: false, error: "Geçersiz while döngüsü sözdizimi" };
+                return { isValid: false, error: "Geçersiz if ifadesi sözdizimi" };
             }
             return {
                 isValid: true,
-                details: {
-                    variableName: match[1],
-                    operator: match[2],
-                    comparisonValue: parseInt(match[3])
-                }
+                details: { matchedStatement: match[0] }
             };
         };
+        const validateClomsyElseIfLoop = (statement) => {
+            const regex = /\belse\s*if\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)?)\s*((==|!=|<|>|<>|<=|>=)\s*(-?\d+))?((==|<>)\s*(True|False))?\s*\)\s*/i;
+            const codeWithoutComments = statement.replace(/\{[\s\S]*?\}/g, '');
+            const match = codeWithoutComments.match(regex);
+
+            if (!match) {
+                return { isValid: false, error: "Geçersiz else-if ifadesi sözdizimi" };
+            }
+            return {
+                isValid: true,
+                details: { matchedStatement: match[0] }
+            };
+        };
+        const validateClomsyElseLoop = (statement) => {
+            const regex = /\belse\s*/i;
+            const codeWithoutComments = statement.replace(/\{[\s\S]*?\}/g, '');
+            const match = codeWithoutComments.match(regex);
+
+            if (!match) {
+                return { isValid: false, error: "Geçersiz else ifadesi sözdizimi" };
+            }
+            return {
+                isValid: true,
+                details: { matchedStatement: match[0] }
+            };
+        };
+
+
         const validateCurlyBraces = (statement) => {
             const codeWithoutComments = statement.replace(/\{[\s\S]*?\}/g, '');
             const openBraces = (codeWithoutComments.match(/{/g) || []).length;
@@ -70,21 +94,26 @@
                 }
             };
         };
+
         document.getElementById('inputText').addEventListener('input', function () {
             const metin = this.value;
-            const whilePattern = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=)\s*(-?\d+)\s*\)\s*{/gi;
-            const matches = metin.matchAll(whilePattern);
+            const ifPattern = /\bif\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)?)\s*((==|!=|<|>|<>|<=|>=)\s*(-?\d+))?((==|<>)\s*(True|False))?\s*\)\s*/gi;
+            const elseifPattern = /\belse\s*if\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)?)\s*((==|!=|<|>|<>|<=|>=)\s*(-?\d+))?((==|<>)\s*(True|False))?\s*\)\s*/gi;
+            const elsePattern = /\belse\s*/gi;
+            const matches = metin.matchAll(ifPattern);
 
             let resultHTML = '';
             let count = 0;
 
             for (const match of matches) {
                 count++;
-                const whileStatement = match[0];
-                const validationResult = validateClomsyWhileLoop(whileStatement);
+                const ifStatement = match[0];
+                const validationResult = validateClomsyIfLoop(ifStatement);
+                const validation1Result = validateClomsyIfLoop(metin.matchAll(elseifPattern));
+                const validation2Result = validateClomsyIfLoop(metin.matchAll(elsePattern));
                 const bracesValidation = validateCurlyBraces(metin);
-                resultHTML += `<p><strong>While Döngüsü #${count}:</strong> ${whileStatement}<br>`;
-                if (validationResult.isValid && bracesValidation.isValid) {
+                resultHTML += `<p><strong>İf Döngüsü #${count}:</strong> ${ifStatement}<br>`;
+                if ((validationResult.isValid && bracesValidation.isValid) || (validation1Result.isValid && bracesValidation.isValid) || (validation2Result.isValid && bracesValidation.isValid)) {
                     resultHTML += `<span class="valid">Geçerli</span>: ${JSON.stringify(validationResult.details)}</p>`;
                 } else {
                     resultHTML += `<span class="invalid">Geçersiz</span>: ${validationResult.error}</p>`;
@@ -92,15 +121,18 @@
             }
 
             if (count === 0) {
-                resultHTML = "<p>'while' döngüsü bulunamadı.</p>";
+                resultHTML = "<p>'If' döngüsü bulunamadı.</p>";
             } else {
-                resultHTML = `<p>Toplam ${count} 'while' döngüsü bulundu:</p>` + resultHTML;
+                resultHTML = `<p>Toplam ${count} 'If' döngüsü bulundu:</p>` + resultHTML;
             }
-            const bracesValidation = validateCurlyBraces(metin);
 
+            const bracesValidation = validateCurlyBraces(metin);
             if (!bracesValidation.isValid) {
-                resultHTML += `<span class="invalid">Geçersiz</span>: ${bracesValidation.error}</p>`;
+                resultHTML += `<p><span class="invalid">Geçersiz</span>: ${bracesValidation.error}</p>`;
+            } else {
+                resultHTML += `<p><span class="valid">Süslü parantezler geçerli</span>: Açılan: ${bracesValidation.details.openBraces}, Kapanan: ${bracesValidation.details.closeBraces}</p>`;
             }
+
             document.getElementById('result').innerHTML = resultHTML;
         });
     </script>
