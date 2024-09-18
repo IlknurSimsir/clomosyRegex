@@ -45,7 +45,7 @@
         };
         const validateClomsyWhileLoop = (statement) => {
             const codeWithoutComments = removeComments(statement);
-            const regex = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|!=|<|>|<>|<=|>=|=)\s*(-?\d+)\s*\)\s*{/i;
+            const regex = /\bwhile\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(==|<|>|<>|<=|>=)\s*(-?\d+)\s*\)\s*{/i;
             const match = codeWithoutComments.match(regex);
 
             if (!match) {
