@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clomosy Değişken Tekrar Kontrolcüsü</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .valid {
+            color: green;
+        }
+
+        .invalid {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Clomosy Değişken Tekrar Kontrolcüsü</h1>
+    <textarea id="inputText" rows="10" placeholder="Metni buraya yazın..."></textarea>
+    <div id="result"></div>
+
+    <script>
+        const validateClomsyVariables = (statement) => {
+            // Süslü parantezden önceki kısmı alıyoruz
+            const beforeBrace = statement.split('{')[0];
+
+            // Var ile başlayan ve noktalı virgülle biten tüm değişken tanımlarını yakalayan regex
+            const variableRegex = /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*[a-zA-Z_][a-zA-Z0-9_]*;/g;
+
+            // Değişken isimlerini toplamak için bir dizi
+            const variables = [];
+            let matchResult;
+
+            // Değişkenleri topluyoruz
+            while ((matchResult = variableRegex.exec(beforeBrace)) !== null) {
+                variables.push(matchResult[1]);  // Değişken ismini alıyoruz
+            }
+
+            // Aynı isimdeki değişkenleri bulmak için
+            const duplicates = variables.filter((item, index) => variables.indexOf(item) !== index);
+
+            if (duplicates.length > 0) {
+                return { isValid: false, error: `Tekrar eden değişken(ler): ${duplicates.join(', ')}` };
+            }
+
+            return { isValid: true, details: `Geçerli değişkenler: ${variables.join(', ')}` };
+        };
+
+        document.getElementById('inputText').addEventListener('input', function () {
+            const metin = this.value;
+
+            // Değişkenleri kontrol et
+            const validationResult = validateClomsyVariables(metin);
+
+            let resultHTML = '';
+            if (validationResult.isValid) {
+                resultHTML += `<span class="valid">Geçerli:</span> ${validationResult.details}`;
+            } else {
+                resultHTML += `<span class="invalid">Geçersiz:</span> ${validationResult.error}`;
+            }
+
+            document.getElementById('result').innerHTML = resultHTML;
+        });
+    </script>
+</body>
+
+</html>
